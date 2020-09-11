@@ -91,6 +91,7 @@ set(SRCS
     src/io/decoding_file.cc
     src/io/file.cc
     src/io/gzip.cc
+    src/io/lzma.cc
     src/tar/archive.cc
     src/tar/entry.cc
     src/tar/stream.cc
@@ -100,6 +101,7 @@ set(SRCS
     src/bzlib.cc
     src/check_signature.hh
     src/decompress_impl.hh
+    src/lzma.cc
     src/zlib.cc
     include/arch/base/archive.hh
     include/arch/base/decompressor.hh
@@ -112,6 +114,7 @@ set(SRCS
     include/arch/io/decoding_file.hh
     include/arch/io/file.hh
     include/arch/io/gzip.hh
+    include/arch/io/lzma.hh
     include/arch/tar/archive.hh
     include/arch/tar/entry.hh
     include/arch/tar/stream.hh
@@ -119,6 +122,7 @@ set(SRCS
     include/arch/zip/entry.hh
     include/arch/zip/stream.hh
     include/arch/bzlib.hh
+    include/arch/lzma.hh
     include/arch/zlib.hh
 )
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRCS})
