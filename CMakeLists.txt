@@ -139,3 +139,6 @@ if (TARGET arch::deps)
     target_link_libraries(arch PUBLIC arch::deps)
 endif()
 
+if (LIBARCH_TESTING)
+add_subdirectory(examples)
+endif()
