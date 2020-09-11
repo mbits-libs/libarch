@@ -18,8 +18,6 @@
 #undef max
 #endif
 
-void debug_hex(std::span<std::byte> bytes);
-
 namespace arch::tar {
 	namespace {
 		constexpr size_t RECORDSIZE = 512;
@@ -372,22 +370,6 @@ namespace arch::tar {
 		entry.magic.assign(view.substr(257, 6));
 
 		auto prefix = as_string(view.substr(345, 155));
-
-#if 0
-		switch (entry.type) {
-			case REGTYPE:
-			case AREGTYPE:
-			case SYMTYPE:
-			case LNKTYPE:
-			case DIRTYPE:
-			case GNUTYPE_LONGNAME:
-			case GNUTYPE_LONGLINK:
-				break;
-			default:
-				debug_hex(header);
-				fputc('\n', stdout);
-		}
-#endif
 
 		if (entry.type == AREGTYPE && entry.name.ends_with('/'))
 			entry.type = DIRTYPE;

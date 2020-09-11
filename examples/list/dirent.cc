@@ -17,42 +17,6 @@
 #undef max
 #endif
 
-void debug_hex(std::span<std::byte> bytes) {
-	auto size = bytes.size();
-	auto data = reinterpret_cast<char const*>(bytes.data());
-
-	static constexpr size_t length = 48;
-	static constexpr char alphabet[] = "0123456789ABCDEF";
-
-	char buffer[length * 4 + 1];
-	buffer[length * 4] = 0;
-
-	while (size) {
-		auto line = length;
-		if (line > size) line = size;
-		size -= line;
-
-		for (size_t index = 0; index < line; ++index, ++data) {
-			auto const c = *data;
-			buffer[index * 3] = alphabet[(c >> 4) & 0xF];
-			buffer[index * 3 + 1] = alphabet[(c)&0xF];
-			buffer[index * 3 + 2] = (index + 1) % 16 ? ' ' : '|';
-			buffer[length * 3 + index] =
-			    std::isprint(static_cast<unsigned char>(c)) ? c : '.';
-		}
-
-		for (size_t index = line; index < length; ++index) {
-			buffer[index * 3] = ' ';
-			buffer[index * 3 + 1] = ' ';
-			buffer[index * 3 + 2] = ' ';
-			buffer[length * 3 + index] = 0;
-		}
-
-		fputs(buffer, stdout);
-		fputc('\n', stdout);
-	}
-}
-
 namespace arch::dirent {
 	namespace {
 		template <typename Class>

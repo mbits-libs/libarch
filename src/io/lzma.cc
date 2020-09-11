@@ -6,8 +6,6 @@
 #include <cstring>
 #include "check_signature.hh"
 
-void debug_hex(std::span<std::byte> bytes);
-
 namespace arch::io {
 	lzma::lzma(wrapper_tag) {}
 
