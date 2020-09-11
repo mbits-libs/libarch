@@ -87,6 +87,7 @@ set(SRCS
     src/base/io/stream.cc
     src/base/io/writeable.cc
     src/base/entry.cc
+    src/io/file.cc
     include/arch/base/archive.hh
     include/arch/base/decompressor.hh
     include/arch/base/fs.hh
@@ -94,6 +95,7 @@ set(SRCS
     include/arch/base/io/stream.hh
     include/arch/base/io/writeable.hh
     include/arch/base/entry.hh
+    include/arch/io/file.hh
 )
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRCS})
 
