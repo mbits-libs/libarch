@@ -95,6 +95,8 @@ set(SRCS
     src/zip/archive.cc
     src/zip/entry.cc
     src/zip/stream.cc
+    src/check_signature.hh
+    src/decompress_impl.hh
     include/arch/base/archive.hh
     include/arch/base/decompressor.hh
     include/arch/base/fs.hh
