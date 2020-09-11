@@ -81,6 +81,7 @@ else()
 endif()
 
 set(SRCS
+    src/archive.cc
     src/base/archive.cc
     src/base/decompressor.cc
     src/base/io/seekable.cc
@@ -103,6 +104,7 @@ set(SRCS
     src/decompress_impl.hh
     src/lzma.cc
     src/zlib.cc
+    include/arch/archive.hh
     include/arch/base/archive.hh
     include/arch/base/decompressor.hh
     include/arch/base/fs.hh
