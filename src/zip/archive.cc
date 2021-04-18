@@ -1,7 +1,17 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 #include <zip.h>
+
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic pop
+#endif
+
 #include <arch/zip/archive.hh>
 #include <arch/zip/entry.hh>
 #include "check_signature.hh"
@@ -75,9 +85,19 @@ namespace arch::zip {
 					    {reinterpret_cast<std::byte*>(data), size}));
 
 				case ZIP_SOURCE_SEEK: {
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 					auto* seek = ZIP_SOURCE_GET_ARGS(zip_source_args_seek_t,
 					                                 data, size, nullptr);
 					if (!seek) return -1;
+
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic pop
+#endif
+
 					auto const newpos = [whence = seek->whence,
 					                     off = seek->offset, file = ctx->file] {
 						switch (whence) {
@@ -98,9 +118,19 @@ namespace arch::zip {
 				}
 
 				case ZIP_SOURCE_STAT: {
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 					auto* st =
 					    ZIP_SOURCE_GET_ARGS(zip_stat_t, data, size, nullptr);
 					if (!st) return 0;
+
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic pop
+#endif
+
 					zip_stat_init(st);
 					auto const last_write_time =
 					    base::io::to_system_clock(ctx->status.last_write_time);
@@ -112,7 +142,16 @@ namespace arch::zip {
 				}
 
 				case ZIP_SOURCE_SUPPORTS:
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 					return ZIP_SOURCE_SUPPORTS_SEEKABLE;
+
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic pop
+#endif
 
 				case ZIP_SOURCE_TELL:
 					return static_cast<zip_int64_t>(ctx->file->tell());

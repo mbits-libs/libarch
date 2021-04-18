@@ -34,6 +34,7 @@ namespace arch::tar {
 		constexpr auto GNUTYPE_LONGNAME = 'L';  // GNU tar longname
 		constexpr auto GNUTYPE_LONGLINK = 'K';  // GNU tar longlink
 		constexpr auto GNUTYPE_SPARSE = 'S';    // GNU tar sparse file
+		constexpr auto POSIX_XHDTYPE = 'x';     // POSIX.1-2001 extended header
 
 		std::string_view as_string_view(std::string_view str) {
 			auto pos = str.find('\0');
@@ -340,6 +341,12 @@ namespace arch::tar {
 			case GNUTYPE_LONGLINK:
 				// offset_ will be updated inside another next() here
 				return apply_gnulong(entry);
+
+			case POSIX_XHDTYPE:
+				offset += block_size(entry.size);
+				entries_.pop_back();
+				// Do NOT use entry from now on...
+				break;
 
 			// everything else, see how much data is attach to the entry.
 			default:

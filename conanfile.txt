@@ -1,8 +1,9 @@
 [requires]
-libzip/1.5.2@bincrafters/stable
+libzip/1.7.3
 zlib/1.2.11
 bzip2/1.0.8
-lzma/5.2.4@bincrafters/stable
+lzma_sdk/9.20
 
 [generators]
 cmake
+cmake_find_package

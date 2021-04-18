@@ -23,8 +23,17 @@ namespace arch::impl {
 
 namespace arch::zlib {
 	decompressor::decompressor(int wbits) {
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 		auto const err = inflateInit2(&z_, wbits);
 		is_initialised_ = err == Z_OK;
+
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#pragma GCC diagnostic pop
+#endif
 	}
 
 	decompressor::~decompressor() {

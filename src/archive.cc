@@ -98,4 +98,11 @@ namespace arch {
 
 		return open_status::archive_unknown;
 	}
+
+	std::vector<std::string_view> known_extentions() {
+		return {
+		    "zip",     "tar.gz", "tgz", "tar.xz", "txz",
+		    "tar.bz2", "tb2",    "tbz", "tbz2",   "tz2",
+		};
+	}
 }  // namespace arch

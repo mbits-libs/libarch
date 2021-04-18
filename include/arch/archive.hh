@@ -4,6 +4,8 @@
 #pragma once
 
 #include <arch/base/archive.hh>
+#include <string_view>
+#include <vector>
 
 namespace arch {
 	enum class open_status {
@@ -14,4 +16,5 @@ namespace arch {
 	};
 
 	open_status open(io::seekable::ptr file, base::archive::ptr& archive);
+	std::vector<std::string_view> known_extentions();
 }  // namespace arch
