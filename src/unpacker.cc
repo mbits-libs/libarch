@@ -37,6 +37,39 @@ namespace arch {
 		return rootdir_ / name;
 	}
 
+	bool unpacker::unpack(fs::path const& path) const {
+		using namespace arch;
+
+		auto file = io::file::open(path);
+		if (!file) {
+			on_error(path, "cannot open");
+			return false;
+		}
+
+		base::archive::ptr archive{};
+		auto const result = open(std::move(file), archive);
+		switch (result) {
+			case open_status::compression_damaged:
+				on_error(path, "file compression damaged");
+				return false;
+			case open_status::archive_damaged:
+				on_error(path, "archive damaged");
+				return false;
+			case open_status::archive_unknown:
+				on_error(path, "unrecognized archive");
+				return false;
+			case open_status::ok:
+				break;
+		}
+
+		if (!archive) {
+			on_error(path, "unknown internal issue");
+			return false;
+		}
+
+		return unpack(*archive);
+	}
+
 	bool unpacker::unpack(base::archive& archive) const {
 		auto const entry_count = archive.count();
 		for (std::size_t ndx = 0; ndx < entry_count; ++ndx) {

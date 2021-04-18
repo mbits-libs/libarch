@@ -12,6 +12,7 @@ namespace arch {
 		unpacker() = default;
 		explicit unpacker(fs::path const& rootdir) : rootdir_{rootdir} {}
 
+		bool unpack(fs::path const& path) const;
 		bool unpack(base::archive& archive) const;
 
 		virtual fs::path modify_path(fs::path const& filename) const;
