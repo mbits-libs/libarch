@@ -1,9 +1,10 @@
 [requires]
 libzip/1.7.3
-zlib/1.2.11
+zlib/1.2.13
 bzip2/1.0.8
 lzma_sdk/9.20
 
 [generators]
-cmake
-cmake_find_package
+CMakeDeps
+CMakeToolchain
+VirtualRunEnv

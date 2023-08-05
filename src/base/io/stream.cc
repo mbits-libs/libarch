@@ -16,12 +16,14 @@ namespace arch::base::io {
 #if defined(HAS_CXX20_FILE_CLOCK)
 	std::chrono::system_clock::time_point to_system_clock(
 	    fs::file_time_type last_write_time) {
-		return std::chrono::file_clock::to_sys(last_write_time);
+		return std::chrono::clock_cast<std::chrono::system_clock>(
+		    last_write_time);
 	}
 
 	fs::file_time_type to_file_clock(
 	    std::chrono::system_clock::time_point last_write_time) {
-		return std::chrono::file_clock::from_sys(last_write_time);
+		return std::chrono::clock_cast<fs::file_time_type::clock>(
+		    last_write_time);
 	}
 #else
 #ifdef _WIN32
@@ -58,5 +60,7 @@ namespace arch::base::io {
 	stream::stream() = default;
 	stream::~stream() = default;
 
-	std::size_t stream::read(std::span<std::byte>) { return 0; }
+	std::size_t stream::read(std::span<std::byte>) {
+		return 0;
+	}
 }  // namespace arch::base::io
