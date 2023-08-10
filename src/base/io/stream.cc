@@ -9,7 +9,7 @@ namespace arch::base::io {
 #elif defined(__GNUC__)
 #define GCC_VER (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #if GCC_VER >= 100100
-#define HAS_CXX20_FILE_CLOCK
+#define HAS_CXX20_FILE_CLOCK_TO_SYS
 #endif
 #endif
 
@@ -25,8 +25,17 @@ namespace arch::base::io {
 		return std::chrono::clock_cast<fs::file_time_type::clock>(
 		    last_write_time);
 	}
-#else
-#ifdef _WIN32
+#elif defined(HAS_CXX20_FILE_CLOCK_TO_SYS)
+	std::chrono::system_clock::time_point to_system_clock(
+	    fs::file_time_type last_write_time) {
+		return fs::file_time_type::clock::to_sys(last_write_time);
+	}
+
+	fs::file_time_type to_file_clock(
+	    std::chrono::system_clock::time_point last_write_time) {
+		return fs::file_time_type::clock::from_sys(last_write_time);
+	}
+#elif defined(_WIN32)
 	// on windows, both sys clock and file clock use the same duration, but the
 	// epochs are moved apart, by the value below (taken from xfilesystem_abi.h)
 	inline static constexpr long long __std_fs_file_time_epoch_adjustment =
@@ -54,7 +63,6 @@ namespace arch::base::io {
 
 	fs::file_time_type to_file_clock(
 	    std::chrono::system_clock::time_point last_write_time) {}
-#endif
 #endif
 
 	stream::stream() = default;

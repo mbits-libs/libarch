@@ -1,11 +1,14 @@
 // Copyright (c) 2020 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
+#define NOMINMAX
+
 #include <arch/tar/archive.hh>
 #include <arch/tar/entry.hh>
 #include "check_signature.hh"
 
 #include <sys/types.h>
+#include <algorithm>
 #include <cctype>
 #include <charconv>
 #include <chrono>
@@ -14,8 +17,6 @@
 
 #ifdef WIN32
 #include <Windows.h>
-#undef min
-#undef max
 #endif
 
 namespace arch::tar {
@@ -171,9 +172,13 @@ namespace arch::tar {
 		return size == 1 && !entries_.empty();
 	}
 
-	void archive::close() { file_.reset(); }
+	void archive::close() {
+		file_.reset();
+	}
 
-	size_t archive::count() const { return entries_.size(); }
+	size_t archive::count() const {
+		return entries_.size();
+	}
 
 	base::entry::ptr archive::entry(size_t index) const {
 		if (index >= entries_.size()) return {};
