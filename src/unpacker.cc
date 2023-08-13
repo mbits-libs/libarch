@@ -3,6 +3,7 @@
 
 #include <arch/io/file.hh>
 #include <arch/unpacker.hh>
+#include <array>
 
 namespace arch {
 	namespace {
@@ -96,65 +97,97 @@ namespace arch {
 		return true;
 	}
 
-	bool unpacker::expand_file(base::entry const& entry) const {
-		auto const name = filename(entry);
-		if (name.empty()) return true;
+	struct expander {
+		static constexpr size_t expected_size = 32 * 1024;
+		std::filesystem::path name;
 
-		auto const& status = entry.file_status();
-		constexpr size_t expected_size = 10 * 1024 * 1024;
-
-		auto input = entry.file();
-		if (!input) return false;
-
-		if (auto const parent = name.parent_path(); !parent.empty()) {
-			std::error_code ec;
-			fs::create_directories(parent, ec);
-			if (ec) {
-				on_error(parent, ec.message().c_str());
-				return false;
-			}
+		static base::io::stream::ptr open_entry(base::entry const& entry) {
+			return entry.file();
 		}
 
-		auto output = io::file::open(name, "wb");
-		if (!output) return false;
-
-		std::vector<std::byte> buffer(expected_size);
-		auto view = std::span{buffer.data(), buffer.size()};
-
-		bool copied = true;
-
-		auto size = status.size;
-		while (size) {
-			auto chunk = buffer.size();
-			if (chunk > size) chunk = size;
-
-			auto const extracted = input->read(view.subspan(0, chunk));
-			if (extracted < chunk) {
-				copied = false;
-				break;
+		bool ensure_directory(unpacker const& self) {
+			if (auto const parent = name.parent_path(); !parent.empty()) {
+				std::error_code ec;
+				fs::create_directories(parent, ec);
+				if (ec) {
+					self.on_error(parent, ec.message().c_str());
+					return false;
+				}
 			}
-
-			auto written = output->write(view.subspan(0, extracted));
-			if (written < extracted) {
-				copied = false;
-				break;
-			}
-
-			size -= chunk;
+			return true;
 		}
 
-		input.reset();
-		output.reset();
+		std::unique_ptr<arch::io::file> open_dst() const {
+			return io::file::open(name, "wb");
+		}
 
-		if (!copied) {
+		bool expand_entry(base::io::stream& src,
+		                  io::file& dst,
+		                  base::io::status const& status) {
+			thread_local std::array<std::byte, expected_size> buffer{};
+			auto view = std::span{buffer.data(), buffer.size()};
+			auto size = status.size;
+			bool copied = true;
+			while (size) {
+				auto chunk = buffer.size();
+				if (chunk > size) chunk = size;
+
+				auto const extracted = src.read(view.subspan(0, chunk));
+				if (extracted < chunk) {
+					copied = false;
+					break;
+				}
+
+				auto written = dst.write(view.subspan(0, extracted));
+				if (written < extracted) {
+					copied = false;
+					break;
+				}
+
+				size -= chunk;
+			}
+
+			return copied;
+		}
+
+		enum result { ok, copy_issues, setup_issues };
+		result expand(unpacker const& self, base::entry const& entry) {
+			auto input = expander::open_entry(entry);
+			if (!input) return setup_issues;
+
+			if (!ensure_directory(self)) return setup_issues;
+
+			auto output = open_dst();
+			if (!output) return setup_issues;
+
+			auto const copied =
+			    expand_entry(*input, *output, entry.file_status());
+			return copied ? ok : copy_issues;
+		}
+
+		void clean(unpacker const& self) const {
 			std::error_code ignore;
 			fs::remove(name, ignore);
-			on_error(name, "cannot extract file");
-			return false;
+			self.on_error(name, "cannot extract file");
 		}
 
-		copy_attributes(name, status);
-		return true;
+		void copy_attributes(base::io::status const& status) {
+			arch::copy_attributes(name, status);
+		}
+	};
+
+	bool unpacker::expand_file(base::entry const& entry) const {
+		expander exp{.name = filename(entry)};
+		if (exp.name.empty()) return true;
+
+		auto const result = exp.expand(*this, entry);
+		if (result == expander::ok) {
+			exp.copy_attributes(entry.file_status());
+			return true;
+		}
+
+		if (result == expander::copy_issues) exp.clean(*this);
+		return false;
 	}
 
 	bool unpacker::make_directory(base::entry const& entry) const {
